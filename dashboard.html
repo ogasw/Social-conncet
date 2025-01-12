@@ -1,0 +1,51 @@
+DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard - SocialConnect</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.0/socket.io.min.js"></script>
+</head>
+<body>
+    <h2>Welcome, {{ user[1] }}!</h2>
+    <p>Email: {{ user[2] }}</p>
+    <p>Details: {{ user[4] or 'No details provided' }}</p>
+    {% if user[5] %}
+        <img src="{{ url_for('static', filename=user[5]) }}" alt="Profile Picture">
+    {% endif %}
+    <a href="{{ url_for('update_details') }}">Update Profile</a><br>
+
+    <h3>Comments</h3>
+    <form action="{{ url_for('comment') }}" method="POST">
+        <textarea name="comment" placeholder="Write a comment..." required></textarea><br>
+        <button type="submit">Post Comment</button>
+    </form>
+
+    <ul>
+        {% for comment in comments %}
+            <li>{{ comment[2] }} (User ID: {{ comment[1] }})</li>
+        {% endfor %}
+    </ul>
+
+    <h3>Chat</h3>
+    <div id="chat"></div>
+    <input type="text" id="chat_message" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        socket.on('message', function(msg) {
+            var chatDiv = document.getElementById('chat');
+            var message = document.createElement('p');
+            message.textContent = msg;
+            chatDiv.appendChild(message);
+        });
+
+        function sendMessage() {
+            var msg = document.getElementById('chat_message').value;
+            socket.send(msg);
+            document.getElementById('chat_message').value = '';
+        }
+    </script>
+</body>
+      </html>
+      
